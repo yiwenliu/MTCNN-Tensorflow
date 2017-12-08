@@ -163,10 +163,6 @@ for annotation in annotations:
                 d_idx += 1
         box_idx += 1
     print("%s images done, pos: %s part: %s neg: %s"%(idx, p_idx, d_idx, n_idx))
-    '''
-    if idx == 2:
-        break
-    '''
 f1.close()
 f2.close()
 f3.close()
