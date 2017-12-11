@@ -12,7 +12,7 @@ from os.path import abspath, join, dirname
 sys.path.append(abspath(dirname(__file__)))
 #print(sys.path)
 
-import utils
+import my_utils
 #from utils import IoU
 
 anno_file = "wider_face_train.txt"
@@ -75,7 +75,7 @@ for annotation in annotations:
         #random crop
         crop_box = np.array([nx, ny, nx + size, ny + size])
         #cal iou
-        Iou = IoU(crop_box, boxes)
+        Iou = my_utils.IoU(crop_box, boxes)
         
         cropped_im = img[ny : ny + size, nx : nx + size]
         resized_im = cv2.resize(cropped_im, (12, 12), interpolation=cv2.INTER_LINEAR)
@@ -110,7 +110,7 @@ for annotation in annotations:
             if nx1 + size > width or ny1 + size > height:
                 continue
             crop_box = np.array([nx1, ny1, nx1 + size, ny1 + size])
-            Iou = IoU(crop_box, boxes)
+            Iou = my_utils.IoU(crop_box, boxes)
     
             cropped_im = img[ny1: ny1 + size, nx1: nx1 + size, :]
             resized_im = cv2.resize(cropped_im, (12, 12), interpolation=cv2.INTER_LINEAR)
@@ -150,19 +150,20 @@ for annotation in annotations:
             resized_im = cv2.resize(cropped_im, (12, 12), interpolation=cv2.INTER_LINEAR)
 
             box_ = box.reshape(1, -1)
-            if IoU(crop_box, box_) >= 0.65:
+            if my_utils.IoU(crop_box, box_) >= 0.65:
                 save_file = os.path.join(pos_save_dir, "%s.jpg"%p_idx)
                 #I do not know why to write the offset into the file?
                 f1.write("12/positive/%s.jpg"%p_idx + ' 1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
                 p_idx += 1
-            elif IoU(crop_box, box_) >= 0.4:
+            elif my_utils.IoU(crop_box, box_) >= 0.4:
                 save_file = os.path.join(part_save_dir, "%s.jpg"%d_idx)
                 f3.write("12/part/%s.jpg"%d_idx + ' -1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
                 d_idx += 1
         box_idx += 1
     print("%s images done, pos: %s part: %s neg: %s"%(idx, p_idx, d_idx, n_idx))
+    #break
 f1.close()
 f2.close()
 f3.close()
