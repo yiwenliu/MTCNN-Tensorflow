@@ -106,5 +106,5 @@ venv.bak/
 #mtcnn project
 12/
 WIDER_train/
-train/
+FacePoint_train/
 *.pyc
