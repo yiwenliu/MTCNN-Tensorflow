@@ -108,3 +108,4 @@ venv.bak/
 WIDER_train/
 FacePoint_train/
 *.pyc
+imglists/

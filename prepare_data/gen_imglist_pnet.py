@@ -29,10 +29,14 @@ with open(os.path.join(data_dir,'%s/landmark_%s_aug.txt' %(size,size)), 'r') as 
 dir_path = os.path.join(data_dir, 'imglists')
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
+    
+dir_path2 = os.path.join(dir_path, "%s" %(net))
+if not os.path.exists(dir_path2):
+    os.makedirs(dir_path2)
 
 with open(os.path.join(dir_path, "%s" %(net),"train_%s_landmark.txt" % (net)), "w") as f:
     nums = [len(neg), len(pos), len(part)]
-    ratio = [3, 1, 1]
+    ratio = [3, 1, 1]#3:1:1:2(negative/positives/part face/landmark)
     #base_num = min(nums)
     base_num = 250000
     print(len(neg), len(pos), len(part), base_num)
@@ -40,6 +44,7 @@ with open(os.path.join(dir_path, "%s" %(net),"train_%s_landmark.txt" % (net)), "
         neg_keep = npr.choice(len(neg), size=base_num * 3, replace=True)
     else:
         neg_keep = npr.choice(len(neg), size=len(neg), replace=True)
+    #@pos_keep: A list of 1-D whose length is $size and maximum is len(pos)
     pos_keep = npr.choice(len(pos), size=base_num, replace=True)
     part_keep = npr.choice(len(part), size=base_num, replace=True)
     print(len(neg_keep), len(pos_keep), len(part_keep))
