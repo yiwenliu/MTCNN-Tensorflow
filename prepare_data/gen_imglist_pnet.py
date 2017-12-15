@@ -1,3 +1,7 @@
+"""
+make new directory and file "prepare_data/imglists/PNet/train_PNet_landmark.txt", 
+to merge the four annotation txts under prepare_data/12
+"""
 import numpy as np
 import numpy.random as npr
 import os
