@@ -14,7 +14,7 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 
 ## Prepare For Training Data
 1. Download Wider Face Training part only from Official Website , unzip to replace `WIDER_train` and put it into `prepare_data` folder.
-2. Download landmark training data from [here](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm),unzip, rename it as FacePoint_train and put them into `prepare_data` folder.
+2. Download landmark training data from [here](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm),unzip, rename it as FacePoint_train and put them into `prepare_data` folder, then substitue FacePoint_train/trainImageList.txt with prepare_data/trainImageList.txt using cp command because of the / and \ directory seperator.
 3. Run `prepare_data/gen_12net_data.py` to generate training data(Face Detection Part) for **PNet**.
    The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
 4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
