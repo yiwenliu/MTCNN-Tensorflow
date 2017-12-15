@@ -43,7 +43,7 @@ with open(os.path.join(dir_path, "%s" %(net),"train_%s_landmark.txt" % (net)), "
     ratio = [3, 1, 1]#3:1:1:2(negative/positives/part face/landmark)
     #base_num = min(nums)
     base_num = 250000
-    print(len(neg), len(pos), len(part), base_num)
+    print(len(neg), len(pos), len(part), base_num) #809650 196960 540330 250000
     if len(neg) > base_num * 3:
         neg_keep = npr.choice(len(neg), size=base_num * 3, replace=True)
     else:
@@ -51,7 +51,7 @@ with open(os.path.join(dir_path, "%s" %(net),"train_%s_landmark.txt" % (net)), "
     #@pos_keep: A list of 1-D whose length is $size and maximum is len(pos)
     pos_keep = npr.choice(len(pos), size=base_num, replace=True)
     part_keep = npr.choice(len(part), size=base_num, replace=True)
-    print(len(neg_keep), len(pos_keep), len(part_keep))
+    print(len(neg_keep), len(pos_keep), len(part_keep)) #750000 250000 250000
 
     for i in pos_keep:
         f.write(pos[i])
