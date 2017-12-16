@@ -28,6 +28,10 @@ def _add_to_tfrecord(filename, image_example, tfrecord_writer):
 
 
 def _get_output_filename(output_dir, name, net):
+    """
+    Return:
+        imglists/PNet/train_PNet_landmark.tfrecord
+    """
     #st = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     #return '%s/%s_%s_%s.tfrecord' % (output_dir, name, net, st)
     return '%s/train_PNet_landmark.tfrecord' % (output_dir)
@@ -55,7 +59,7 @@ def run(dataset_dir, net, output_dir, name='MTCNN', shuffling=False):
         random.shuffle(dataset)
     # Process dataset files.
     # write the data to tfrecord
-    print 'lala'
+    #print 'lala'
     with tf.python_io.TFRecordWriter(tf_filename) as tfrecord_writer:
         for i, image_example in enumerate(dataset):
             sys.stdout.write('\r>> Converting image %d/%d' % (i + 1, len(dataset)))
@@ -70,16 +74,20 @@ def run(dataset_dir, net, output_dir, name='MTCNN', shuffling=False):
 
 
 def get_dataset(dir, net='PNet'):
+    """
+    Return:
+    [{'filename':xx, 'label':xx, 'bbox':{}}]
+    """
     #item = 'imglists/PNet/train_%s_raw.txt' % net
     item = 'imglists/PNet/train_%s_landmark.txt' % net
     
     dataset_dir = os.path.join(dir, item)
     imagelist = open(dataset_dir, 'r')
 
-    dataset = []
+    dataset = []#list of data_example
     for line in imagelist.readlines():
         info = line.strip().split(' ')
-        data_example = dict()
+        data_example = dict() #{'filename':xx, 'label':xx, 'bbox':{}}
         bbox = dict()
         data_example['filename'] = info[0]
         data_example['label'] = int(info[1])
@@ -97,12 +105,12 @@ def get_dataset(dir, net='PNet'):
         bbox['yleftmouth'] = 0
         bbox['xrightmouth'] = 0
         bbox['yrightmouth'] = 0        
-        if len(info) == 6:
+        if len(info) == 6: #for positive and negative train set
             bbox['xmin'] = float(info[2])
             bbox['ymin'] = float(info[3])
             bbox['xmax'] = float(info[4])
             bbox['ymax'] = float(info[5])
-        if len(info) == 12:
+        if len(info) == 12:#for landmark train set
             bbox['xlefteye'] = float(info[2])
             bbox['ylefteye'] = float(info[3])
             bbox['xrighteye'] = float(info[4])
@@ -116,7 +124,6 @@ def get_dataset(dir, net='PNet'):
             
         data_example['bbox'] = bbox
         dataset.append(data_example)
-
     return dataset
 
 

@@ -2,7 +2,7 @@
 import tensorflow as tf
 import os
 import cv2
-from PIL import Image
+#from PIL import Image
 
 
 def _int64_feature(value):
@@ -62,10 +62,11 @@ def _convert_to_example(image_example, image_buffer, colorspace=b'RGB', channels
         'image/image_bbox/ymax': _float_feature(ymax),
     }))
     return example
+
 def _convert_to_example_simple(image_example, image_buffer):
     """
     covert to tfrecord file
-    :param image_example: dict, an image example
+    :param image_example: dict, an image example, {'filename':xx, 'label':xx, 'bbox':{}}
     :param image_buffer: string, JPEG encoding of RGB image
     :param colorspace:
     :param channels:
@@ -86,7 +87,7 @@ def _convert_to_example_simple(image_example, image_buffer):
     example = tf.train.Example(features=tf.train.Features(feature={
         'image/encoded': _bytes_feature(image_buffer),
         'image/label': _int64_feature(class_label),
-        'image/roi': _float_feature(roi),
+        'image/roi': _float_feature(roi), #ROI: region of interest
         'image/landmark': _float_feature(landmark)
     }))
     return example
@@ -153,7 +154,7 @@ def _process_image(filename, coder):
     # image_data = sess.run(tf.cast(resized_image, tf.uint8)).tobytes()
     # image = Image.open(filename)  # 图片的类型必须为array
     filename = filename + '.jpg'
-    print filename
+    print(filename)
     image = cv2.imread(filename)
     # image.show()
     # image_data = image.tobytes()
@@ -175,6 +176,7 @@ def _process_image(filename, coder):
     assert image.shape[2] == 3
 
     return image_data, height, width
+
 def _process_image_withoutcoder(filename):
     image = cv2.imread(filename)
     image_data = image.tostring()
