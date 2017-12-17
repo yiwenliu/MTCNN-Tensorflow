@@ -21,7 +21,8 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 5. Run `gen_imglist_pnet.py` to merge two parts of training data.
 6. Run `gen_PNet_tfrecords.py` to generate tfrecord for **PNet**, prepare_data\imglists\PNet\train_PNet_landmark.tfrecord_shuffle.
    But "段错误 (核心已转储)" on my ubuntu with GPU, and the file size is about 859,920,160 bytes.
-7. After training **PNet**, run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
+7. After training **PNet**, train_models/train_PNet.py. 
+   run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
 8. Run `gen_landmark_aug_24.py` to generate training data(Face Landmark Detection Part) for **RNet**.
 9. Run `gen_imglist_rnet.py` to merge two parts of training data.
 10. Run `gen_RNet_tfrecords.py` to generate tfrecords for **RNet**.(**you should run this script four times to generate tfrecords of neg,pos,part and landmark respectively**)
