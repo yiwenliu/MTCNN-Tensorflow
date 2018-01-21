@@ -16,10 +16,11 @@ def dense_to_one_hot(labels_dense,num_classes):
     labels_one_hot = np.zeros((num_labels,num_classes))
     labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
     return labels_one_hot
-#cls_prob:batch*2
+#cls_prob:[batch, 2]
 #label:batch
 
 def cls_ohem(cls_prob, label):
+    #Creates a tensor of the same type and shape as label with all elements set to zero.
     zeros = tf.zeros_like(label)
     #label=-1 --> label=0net_factory
     label_filter_invalid = tf.where(tf.less(label,0), zeros, label)
@@ -122,7 +123,8 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
         print(inputs.get_shape())
         net = slim.conv2d(inputs, 10, 3, stride=1,scope='conv1')
         print(net.get_shape())
-        net = slim.max_pool2d(net, kernel_size=[2,2], stride=2, scope='pool1', padding='SAME')
+        #net = slim.max_pool2d(net, kernel_size=[2,2], stride=2, scope='pool1', padding='SAME')
+        net = slim.max_pool2d(net, kernel_size=[3,3], stride=2, scope='pool1', padding='SAME')
         print(net.get_shape())
         net = slim.conv2d(net,num_outputs=16,kernel_size=[3,3],stride=1,scope='conv2')
         print(net.get_shape())
@@ -132,23 +134,23 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
         conv4_1 = slim.conv2d(net,num_outputs=2,kernel_size=[1,1],stride=1,scope='conv4_1',activation_fn=tf.nn.softmax)
         #conv4_1 = slim.conv2d(net,num_outputs=1,kernel_size=[1,1],stride=1,scope='conv4_1',activation_fn=tf.nn.sigmoid)
         
-        print(conv4_1.get_shape())
+        print(conv4_1.get_shape())#=>batch*1*1*2
         #batch*H*W*4
         bbox_pred = slim.conv2d(net,num_outputs=4,kernel_size=[1,1],stride=1,scope='conv4_2',activation_fn=None)
-        print(bbox_pred.get_shape())
+        print(bbox_pred.get_shape())#=>batch*1*1*4
         #batch*H*W*10
         landmark_pred = slim.conv2d(net,num_outputs=10,kernel_size=[1,1],stride=1,scope='conv4_3',activation_fn=None)
-        print(landmark_pred.get_shape())
+        print(landmark_pred.get_shape())#=>batch*1*1*10
         #cls_prob_original = conv4_1 
         #bbox_pred_original = bbox_pred
         if training:
-            #batch*2
+            #shape of cls_prob is batch*2
             cls_prob = tf.squeeze(conv4_1,[1,2],name='cls_prob')
             cls_loss = cls_ohem(cls_prob,label)
-            #batch
+            #shape of bbox_pred is batch*4
             bbox_pred = tf.squeeze(bbox_pred,[1,2],name='bbox_pred')
             bbox_loss = bbox_ohem(bbox_pred,bbox_target,label)
-            #batch*10
+            #shape of landmark_pred is batch*10
             landmark_pred = tf.squeeze(landmark_pred,[1,2],name="landmark_pred")
             landmark_loss = landmark_ohem(landmark_pred,landmark_target,label)
 

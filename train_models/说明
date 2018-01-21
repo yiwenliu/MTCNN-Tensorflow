@@ -2,6 +2,8 @@ MTCNN_config.py
 	一些参数的配置
 mtcnn_model.py
 	模型的定义都在这里
+	def P_Net()
+	  1. line 125 slim.max_pool2d() kernel_size改为[3,3]
 train.py
 	模型的训练代码
 train_xxnet.py
