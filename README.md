@@ -16,7 +16,9 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 1. Download Wider Face Training part only from Official Website , unzip to replace `WIDER_train` and put it into `prepare_data` folder.
 2. Download landmark training data from [here](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm),unzip, rename it as FacePoint_train and put them into `prepare_data` folder, then substitue FacePoint_train/trainImageList.txt with prepare_data/trainImageList.txt using cp command because of the / and \ directory seperator.
 3. Run `prepare_data/gen_12net_data.py` to generate training data(Face Detection Part) for **PNet**.
-   The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
+* The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
+* prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt
+* prepare_data/12下生成三个子目录：negative, part, positive
 4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
 5. Run `gen_imglist_pnet.py` to merge two parts of training data.
 6. Run `gen_PNet_tfrecords.py` to generate tfrecord for **PNet**, prepare_data\imglists\PNet\train_PNet_landmark.tfrecord_shuffle.

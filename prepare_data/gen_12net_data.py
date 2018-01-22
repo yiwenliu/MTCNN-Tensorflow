@@ -1,6 +1,7 @@
 #coding:utf-8
 """
-for every face in the picture, there will produce about pos: 6, part: 14, neg: 55
+- for every face in the picture, there will produce about 
+pos: 6, part: 14, neg: 55
 """
 import sys
 import numpy as np
@@ -48,7 +49,7 @@ for annotation in annotations:
     im_path = annotation[0]
     #boxed change to float type
     # Before Python3, map() used to return a list,
-    # With Python 3, map() returns an iterator. 
+    # With Python 3, map() returns an iterator, so list() must be called. 
     bbox = list(map(float, annotation[1:]))
     #gt
     #From 1-d to 2-d,because there may be many faces in the picture.
@@ -65,7 +66,7 @@ for annotation in annotations:
     height, width, channel = img.shape
 
     neg_num = 0
-    #1---->50
+    #1---->50, generate 50 negative examples
     while neg_num < 50:
         #neg_num's size [40,min(width, height) / 2],min_size:40 
         size = npr.randint(12, min(width, height) / 2)
@@ -100,7 +101,9 @@ for annotation in annotations:
         # in case the ground truth boxes of small faces are not accurate
         if max(w, h) < 40 or x1 < 0 or y1 < 0:
             continue
+        #generate 5 negative examples
         for i in range(5):
+            #return a single int value between 12 and min(width, height) / 2
             size = npr.randint(12, min(width, height) / 2)
             # delta_x and delta_y are offsets of (x1, y1)
             delta_x = npr.randint(max(-size, -x1), w)
@@ -121,7 +124,7 @@ for annotation in annotations:
                 f2.write("12/negative/%s.jpg" % n_idx + ' 0\n')
                 cv2.imwrite(save_file, resized_im)
                 n_idx += 1        
-	# generate positive examples and part faces
+	      # generate positive examples and part faces
         for i in range(20):
             # pos and part face size [minsize*0.8,maxsize*1.25]
             size = npr.randint(int(min(w, h) * 0.8), np.ceil(1.25 * max(w, h)))
