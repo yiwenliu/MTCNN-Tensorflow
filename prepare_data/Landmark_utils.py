@@ -22,8 +22,8 @@ def show_landmark(face, landmark):
 
 
 #rotate(img, f_bbox,bbox.reprojectLandmark(landmarkGt), 5)
-#img: the whole image
-#BBox:object
+#img: the whole image，对整个图片进行旋转，而不仅仅是gt bbx
+#bbox：BBox_object
 #landmark:
 #alpha:angle
 def rotate(img, bbox, landmark, alpha):
@@ -32,6 +32,7 @@ def rotate(img, bbox, landmark, alpha):
         and return rotated face with bbox, landmark (absolute position)
     """
     center = ((bbox.left+bbox.right)/2, (bbox.top+bbox.bottom)/2)
+    #rot_mat:构造旋转矩阵
     rot_mat = cv2.getRotationMatrix2D(center, alpha, 1)
     #whole image rotate
     #pay attention: 3rd param(col*row)
@@ -46,9 +47,11 @@ def rotate(img, bbox, landmark, alpha):
 def flip(face, landmark):
     """
         flip face
+        @landmark: array of shape 5*2
     """
     face_flipped_by_x = cv2.flip(face, 1)
     #mirror
+    #1-x:landmark相对于新的top-left(以前right-left)的归一化偏移值
     landmark_ = np.asarray([(1-x, y) for (x, y) in landmark])
     landmark_[[0, 1]] = landmark_[[1, 0]]#left eye<->right eye
     landmark_[[3, 4]] = landmark_[[4, 3]]#left mouth<->right mouth

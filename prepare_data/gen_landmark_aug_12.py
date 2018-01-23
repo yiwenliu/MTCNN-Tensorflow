@@ -47,6 +47,8 @@ def IoU(box, boxes):
 
 def GenerateData(ftxt, output, net, augmentation=False):
     """Write a landmark annotation txt & Crop the corresponding image patches
+       ftxt: "FacePoint_train/trainImageList.txt"
+       output: 12
     """
     if net == "PNet":
         size = 12
@@ -61,24 +63,24 @@ def GenerateData(ftxt, output, net, augmentation=False):
     f = open(join(output,"landmark_%s_aug.txt" %(size)),'w')
     #dstdir = "train_landmark_few"
     
-    #data = [(img_path, BBox_object, landmark_array_5*2)]
+    #data: [(img_path, BBox_object, landmark_array_5*2)], a list of tuple
     data = getDataFromTxt(ftxt)
     idx = 0
-    #image_path bbox landmark(5*2)
+    #image_path bbox(BBox_object) landmarkGt(array of 5*2)
     for (imgPath, bbox, landmarkGt) in data:
         #print imgPath
-        F_imgs = [] #the list of face pathes
+        F_imgs = [] #the list of face bondary region pixes
         F_landmarks = [] #the list of landmark array
         img = cv2.imread(imgPath)
         assert(img is not None)
         img_h,img_w,img_c = img.shape
         gt_box = np.array([bbox.left,bbox.top,bbox.right,bbox.bottom])
         f_face = img[bbox.top:bbox.bottom+1,bbox.left:bbox.right+1]
-        #@f_face: the face path in the image
+        #@f_face: face bondary region pixes
         #@landmark: relative position of the five landmark
         f_face = cv2.resize(f_face,(size,size))
         landmark = np.zeros((5, 2))
-        #normalize
+        #@rv:人脸的面部轮廓关键点不采用绝对坐标,而采用相对于Bounding Box top-left点的相对坐标
         #@one: iterate each row in the landmarkGt array
         for index, one in enumerate(landmarkGt):
             rv = ((one[0]-gt_box[0])/(gt_box[2]-gt_box[0]), (one[1]-gt_box[1])/(gt_box[3]-gt_box[1]))
@@ -88,6 +90,8 @@ def GenerateData(ftxt, output, net, augmentation=False):
         F_landmarks.append(landmark.reshape(10))
         #print(landmark.reshape(10))
         landmark = np.zeros((5, 2)) #landmark array should be zero after every time of landmark annotation        
+        #如果需要强化，就在gt face bbx内，用滑动窗口选取postive face bbox，
+        #计算gt landmark相对于这个positive face bbox的归一化偏移值
         if augmentation:
             idx = idx + 1
             if idx % 100 == 0:
@@ -102,6 +106,8 @@ def GenerateData(ftxt, output, net, augmentation=False):
             #random shift, 
             #ten augmentative images for each original image
             for i in range(10):
+                #bbox_size是滑动窗口的尺寸
+                #和gen_12net_data.py中生成pos和part时的size相等
                 bbox_size = npr.randint(int(min(gt_w, gt_h) * 0.8), np.ceil(1.25 * max(gt_w, gt_h)))
                 delta_x = npr.randint(-gt_w * 0.2, gt_w * 0.2)
                 delta_y = npr.randint(-gt_h * 0.2, gt_h * 0.2)
@@ -117,6 +123,7 @@ def GenerateData(ftxt, output, net, augmentation=False):
                 resized_im = cv2.resize(cropped_im, (size, size))
                 #cal iou
                 iou = IoU(crop_box, np.expand_dims(gt_box,0))
+                #取positive face部分进行强化
                 if iou > 0.65:
                     F_imgs.append(resized_im)
                     #normalize
@@ -129,17 +136,19 @@ def GenerateData(ftxt, output, net, augmentation=False):
                     bbox = BBox([nx1,ny1,nx2,ny2])                    
 
                     #mirror                    
-                    if random.choice([0,1]) > 0:
+                    if random.choice([0,1]) > 0:#在0和1之间选择
                         #flip() is defined in Landmark_utils.py
+                        #仅对从gt bbx抠出来的postive face bbx进行镜像
                         face_flipped, landmark_flipped = flip(resized_im, landmark_)
                         face_flipped = cv2.resize(face_flipped, (size, size))
                         #c*h*w
                         F_imgs.append(face_flipped)
                         F_landmarks.append(landmark_flipped.reshape(10))
                     
-                    #rotate
+                    #inverse clockwise rotate，这部分代码应该和"if iou > 0.65:"平级，因为并非用修剪后的图片进行旋转
                     if random.choice([0,1]) > 0:
                         #rotate() is defined in Landmark_utils.py
+                        #对整个图片进行逆时针旋转
                         face_rotated_by_alpha, landmark_rotated = rotate(img, bbox, \
                                                                          bbox.reprojectLandmark(landmark_), 5)#逆时针旋转
                         #landmark_offset
@@ -147,13 +156,13 @@ def GenerateData(ftxt, output, net, augmentation=False):
                         face_rotated_by_alpha = cv2.resize(face_rotated_by_alpha, (size, size))
                         F_imgs.append(face_rotated_by_alpha)
                         F_landmarks.append(landmark_rotated.reshape(10))
-                        #flip
+                        #flip，旋转后再镜像
                         face_flipped, landmark_flipped = flip(face_rotated_by_alpha, landmark_rotated)
                         face_flipped = cv2.resize(face_flipped, (size, size))
                         F_imgs.append(face_flipped)
                         F_landmarks.append(landmark_flipped.reshape(10))                
                     
-                    #inverse clockwise rotation
+                    #clockwise rotation（顺时针旋转）
                     if random.choice([0,1]) > 0: 
                         face_rotated_by_alpha, landmark_rotated = rotate(img, bbox, \
                                                                          bbox.reprojectLandmark(landmark_), -5)#顺时针旋转

@@ -1,13 +1,16 @@
 import numpy as np
 
 def IoU(box, boxes):
-    """Compute IoU between detect box and gt boxes
+    """Compute IoU between detect box and gt(ground truth) boxes
+    IoU: Intersection-Over-Union
 
     Parameters:
     ----------
-    box: numpy array , shape (5, ): x1, y1, x2, y2, score
+    box: 生成的一个滑动窗口
+        numpy array , shape (5, ): x1, y1, x2, y2, score
         input box
-    boxes: numpy array, shape (n, 4): x1, y1, x2, y2
+    boxes: 多个guarant box（一个图片可以有多个人脸，所以会有多个guarant box）,
+        numpy array, shape (n, 4): x1, y1, x2, y2
         input ground truth boxes
 
     Returns:
@@ -16,7 +19,10 @@ def IoU(box, boxes):
         IoU
     """
     box_area = (box[2] - box[0] + 1) * (box[3] - box[1] + 1)
+    #area的类型是numpy array, 对应元素相乘
     area = (boxes[:, 2] - boxes[:, 0] + 1) * (boxes[:, 3] - boxes[:, 1] + 1)
+    #xx1-yy2都是numpy array
+    #np.maximum()进行元素级别的比较
     xx1 = np.maximum(box[0], boxes[:, 0])
     yy1 = np.maximum(box[1], boxes[:, 1])
     xx2 = np.minimum(box[2], boxes[:, 2])

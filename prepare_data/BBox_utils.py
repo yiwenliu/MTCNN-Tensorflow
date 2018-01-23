@@ -35,7 +35,7 @@ def getDataFromTxt(txt, with_landmark=True):
     """
         Generate data from txt file
         return [(img_path, bbox, landmark)]
-            bbox: [left, right, top, bottom]
+            bbox: [left, top, right, bottom]
             landmark: [(x1, y1), (x2, y2), ...]
     """
     #get dirname
@@ -47,13 +47,13 @@ def getDataFromTxt(txt, with_landmark=True):
     for line in lines:
         line = line.strip()
         components = line.split(' ')
+        #img_path:prepare_data/FacePoint_train/lfw_5590/Aaron_Eckhart_0001.jpg
         img_path = os.path.join(dirname, components[0]) # file path
-        # bounding box, (x1, y1, x2, y2)
-        #bbox = (components[1], components[2], components[3], components[4])
+        # bbox: (x1, y1, x2, y2)
         bbox = (components[1], components[3], components[2], components[4])        
         bbox = [float(_) for _ in bbox]
         bbox = list(map(int,bbox))
-        # landmark
+        # 如果不需要人脸对齐的五个点的坐标
         if not with_landmark:
             result.append((img_path, BBox(bbox)))
             continue
@@ -140,7 +140,7 @@ class BBox(object):
         bbox[2] -= int(self.h * scale)
         bbox[3] += int(self.h * scale)
         return BBox(bbox)
-    #offset
+    #offset，由某个point的坐标计算其相对于bbx的归一化偏移值
     def project(self, point):
         x = (point[0]-self.x) / self.w
         y = (point[1]-self.y) / self.h

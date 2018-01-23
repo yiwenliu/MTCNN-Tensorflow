@@ -17,9 +17,17 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 2. Download landmark training data from [here](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm),unzip, rename it as FacePoint_train and put them into `prepare_data` folder, then substitue FacePoint_train/trainImageList.txt with prepare_data/trainImageList.txt using cp command because of the / and \ directory seperator.
 3. Run `prepare_data/gen_12net_data.py` to generate training data(Face Detection Part) for **PNet**.
 * The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
-* prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt
-* prepare_data/12下生成三个子目录：negative, part, positive
+* prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt，文件中每一行除了记录如下。
+  12/negative/0.jpg 0
+  12/part/0.jpg -1 0.05 0.15 -0.21 0.05
+  12/positive/0.jpg 1 0.12 0.04 0.04 0.18
+  图片路径             bbx归一化偏移值
+* prepare_data/12下生成三个子目录：negative, part, positive，分别存储尺寸为12*12的“非脸部，部分脸部，脸部”训练图片。
 4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
+* 在prepare_data/12下生成了子目录train_PNet_landmark_aug，其中存放的都是12x12的positive face
+* 在prepare_data/12下生成landmark_12_aug.txt，每行记录的格式如下：
+  12/train_PNet_landmark_aug\0.jpg -2 0.288961038961 0.204545454545 0.814935064935 0.262987012987 0.535714285714 0.659090909091 0.275974025974 0.853896103896 0.724025974026 0.905844155844
+                                      五个landmark点相对于bbx top-left的归一化偏移值
 5. Run `gen_imglist_pnet.py` to merge two parts of training data.
 6. Run `gen_PNet_tfrecords.py` to generate tfrecord for **PNet**, prepare_data\imglists\PNet\train_PNet_landmark.tfrecord_shuffle.
    But "段错误 (核心已转储)" on my ubuntu with GPU, and the file size is about 859,920,160 bytes.
