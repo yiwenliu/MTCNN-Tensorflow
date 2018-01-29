@@ -107,6 +107,7 @@ for annotation in annotations:
         #在每个face boundary region内还要生成5个negative examples
         for i in range(5):
             #return a single int value between 12 and min(width, height) / 2
+            #滑动窗口的size>12
             size = npr.randint(12, min(width, height) / 2)
             # delta_x and delta_y are offsets of (x1, y1)
             delta_x = npr.randint(max(-size, -x1), w)
@@ -149,7 +150,8 @@ for annotation in annotations:
                 continue 
             crop_box = np.array([nx1, ny1, nx2, ny2])
             #yu gt(ground truth) de offset
-            #计算归一化的slide window和face boundary region的坐标偏移值
+            #计算slide window相对于face gt bbx的归一化坐标偏移值
+            #注意：分母是size of the slide window
             offset_x1 = (x1 - nx1) / float(size)
             offset_y1 = (y1 - ny1) / float(size)
             offset_x2 = (x2 - nx2) / float(size)

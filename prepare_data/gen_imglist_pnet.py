@@ -50,9 +50,11 @@ with open(os.path.join(dir_path, "%s" %(net),"train_%s_landmark.txt" % (net)), "
         neg_keep = npr.choice(len(neg), size=len(neg), replace=True)
     #@pos_keep: A list of 1-D whose length is $size and maximum is len(pos)
     pos_keep = npr.choice(len(pos), size=base_num, replace=True)
+    #@part_keep: A list,列表中每一个元素都不大于len(part)
     part_keep = npr.choice(len(part), size=base_num, replace=True)
     print(len(neg_keep), len(pos_keep), len(part_keep)) #750000 250000 250000
 
+    #打乱了顺序，写入新的annoation文件
     for i in pos_keep:
         f.write(pos[i])
     for i in neg_keep:

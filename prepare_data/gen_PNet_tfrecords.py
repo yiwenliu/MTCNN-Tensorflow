@@ -13,15 +13,14 @@ def _add_to_tfrecord(filename, image_example, tfrecord_writer):
     """Loads data from image and annotations files and add them to a TFRecord.
 
     Args:
-      dataset_dir: Dataset directory;
-      name: Image name to add to the TFRecord;
+      image_example: dict contains image's info
+      filename: Image name to add to the TFRecord;
       tfrecord_writer: The TFRecord writer to use for writing.
     """
     print('---', filename)
     #imaga_data:array to string
     #height:original image's height
     #width:original image's width
-    #image_example dict contains image's info
     image_data, height, width = _process_image_withoutcoder(filename)
     example = _convert_to_example_simple(image_example, image_data)
     tfrecord_writer.write(example.SerializeToString())
@@ -51,6 +50,7 @@ def run(dataset_dir, net, output_dir, name='MTCNN', shuffling=False):
         print('Dataset files already exist. Exiting without re-creating them.')
         return
     # GET Dataset, and shuffling.
+    #@dataset: [{'filename':xx, 'label':xx, 'bbox':{'xmin':xx,...}}]
     dataset = get_dataset(dataset_dir, net=net)
     # filenames = dataset['filename']
     if shuffling:
@@ -59,7 +59,7 @@ def run(dataset_dir, net, output_dir, name='MTCNN', shuffling=False):
         random.shuffle(dataset)
     # Process dataset files.
     # write the data to tfrecord
-    #print 'lala'
+    # print 'lala'
     with tf.python_io.TFRecordWriter(tf_filename) as tfrecord_writer:
         for i, image_example in enumerate(dataset):
             sys.stdout.write('\r>> Converting image %d/%d' % (i + 1, len(dataset)))
@@ -76,9 +76,9 @@ def run(dataset_dir, net, output_dir, name='MTCNN', shuffling=False):
 def get_dataset(dir, net='PNet'):
     """
     Return:
-    [{'filename':xx, 'label':xx, 'bbox':{}}]
+    [{'filename':xx, 'label':xx, 'bbox':{'xmin':xx,...}}]
     """
-    #item = 'imglists/PNet/train_%s_raw.txt' % net
+    #@item:由gen_imglist_pnet.py生成
     item = 'imglists/PNet/train_%s_landmark.txt' % net
     
     dataset_dir = os.path.join(dir, item)
@@ -91,10 +91,12 @@ def get_dataset(dir, net='PNet'):
         bbox = dict()
         data_example['filename'] = info[0]
         data_example['label'] = int(info[1])
+        #face bbx归一化偏移值
         bbox['xmin'] = 0
         bbox['ymin'] = 0
         bbox['xmax'] = 0
         bbox['ymax'] = 0
+        #face landmark归一化偏移值
         bbox['xlefteye'] = 0
         bbox['ylefteye'] = 0
         bbox['xrighteye'] = 0
@@ -105,12 +107,15 @@ def get_dataset(dir, net='PNet'):
         bbox['yleftmouth'] = 0
         bbox['xrightmouth'] = 0
         bbox['yrightmouth'] = 0        
-        if len(info) == 6: #for positive and negative train set
+        #for positive and part face detection train set
+        #for neg face, len(info)==2
+        if len(info) == 6: 
             bbox['xmin'] = float(info[2])
             bbox['ymin'] = float(info[3])
             bbox['xmax'] = float(info[4])
             bbox['ymax'] = float(info[5])
-        if len(info) == 12:#for landmark train set
+        #for landmark train set
+        if len(info) == 12:
             bbox['xlefteye'] = float(info[2])
             bbox['ylefteye'] = float(info[3])
             bbox['xrighteye'] = float(info[4])
