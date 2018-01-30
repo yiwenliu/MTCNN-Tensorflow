@@ -84,13 +84,13 @@ def train(net_factory, prefix, end_epoch, base_dir,
     train PNet/RNet/ONet
     :param net_factory:
     :param prefix: model path,data/MTCNN_model/PNet_landmark/PNet
-    :param end_epoch:16
+    :param end_epoch:
     :param base_dir:tfrecord path
     :param display:
     :param base_lr:
     :return:
     """
-    net = prefix.split('/')[-1]
+    net = prefix.split('/')[-1] #PNet or RNet or ONet
     #label file
     label_file = os.path.join(base_dir,'train_%s_landmark.txt' % net)
     #label_file = os.path.join(base_dir,'landmark_12_few.txt')

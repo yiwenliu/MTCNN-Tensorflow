@@ -6,11 +6,11 @@ from train import train
 def train_PNet(base_dir, prefix, end_epoch, display, lr):
     """
     train PNet
-    :param base_dir: tfrecord path
-    :param prefix:
-    :param end_epoch:
-    :param display:
-    :param lr:
+    :param base_dir: tfrecord path, '../prepare_data/imglists/PNet'
+    :param prefix:'../data/MTCNN_model/PNet_landmark/PNet'
+    :param end_epoch: 30
+    :param display: 100
+    :param lr: 0.01
     :return:
     """
     net_factory = P_Net

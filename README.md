@@ -33,10 +33,11 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 * 在上述目录下，新建train_PNet_landmark.txt，把landmark_12_aug.txt, neg_12.txt，part_12.txt和pos_12.txt中的每一行打乱了顺序，再写入新建annotation文件中
 * train_PNet_landmark.txt中的每一行都保持了在原标记文件中的原样,features的数量并没有扩充
 6. Run `gen_PNet_tfrecords.py` to generate tfrecord for **PNet**, prepare_data\imglists\PNet\train_PNet_landmark.tfrecord_shuffle.
+* 采用protocol buffer的格式，把图片的内容和标记写到了一个文件中。
 * 执行时间很长，但是报错——"段错误 (核心已转储)" on my ubuntu with GPU, and the file size is about 859,920,160 bytes.
 * 在prepare_data\imglists\PNet下新建train_PNet_landmark.tfrecord_shuffle
 7. After training **PNet**, train_models/train_PNet.py. 
-   run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
+   Run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
 8. Run `gen_landmark_aug_24.py` to generate training data(Face Landmark Detection Part) for **RNet**.
 9. Run `gen_imglist_rnet.py` to merge two parts of training data.
 10. Run `gen_RNet_tfrecords.py` to generate tfrecords for **RNet**.(**you should run this script four times to generate tfrecords of neg,pos,part and landmark respectively**)

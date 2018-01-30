@@ -3,12 +3,16 @@ import tensorflow as tf
 from tensorflow.contrib import slim
 import numpy as np
 num_keep_radio = 0.7
+
+
 #define prelu
 def prelu(inputs):
     alphas = tf.get_variable("alphas", shape=inputs.get_shape()[-1], dtype=tf.float32, initializer=tf.constant_initializer(0.25))
     pos = tf.nn.relu(inputs)
     neg = alphas * (inputs-abs(inputs))*0.5
     return pos + neg
+
+
 def dense_to_one_hot(labels_dense,num_classes):
     num_labels = labels_dense.shape[0]
     index_offset = np.arange(num_labels)*num_classes
@@ -16,9 +20,10 @@ def dense_to_one_hot(labels_dense,num_classes):
     labels_one_hot = np.zeros((num_labels,num_classes))
     labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
     return labels_one_hot
+
+
 #cls_prob:[batch, 2]
 #label:batch
-
 def cls_ohem(cls_prob, label):
     #Creates a tensor of the same type and shape as label with all elements set to zero.
     zeros = tf.zeros_like(label)
@@ -41,6 +46,8 @@ def cls_ohem(cls_prob, label):
     loss = loss * valid_inds
     loss,_ = tf.nn.top_k(loss, k=keep_num)
     return tf.reduce_mean(loss)
+
+
 def bbox_ohem_smooth_L1_loss(bbox_pred,bbox_target,label):
     sigma = tf.constant(1.0)
     threshold = 1.0/(sigma**2)
@@ -55,6 +62,8 @@ def bbox_ohem_smooth_L1_loss(bbox_pred,bbox_target,label):
     _, k_index = tf.nn.top_k(smooth_loss, k=keep_num)
     smooth_loss_picked = tf.gather(smooth_loss, k_index)
     return tf.reduce_mean(smooth_loss_picked)
+
+
 def bbox_ohem_orginal(bbox_pred,bbox_target,label):
     zeros_index = tf.zeros_like(label, dtype=tf.float32)
     #pay attention :there is a bug!!!!
@@ -68,6 +77,8 @@ def bbox_ohem_orginal(bbox_pred,bbox_target,label):
     _, k_index = tf.nn.top_k(square_error, k=keep_num)
     square_error = tf.gather(square_error, k_index)
     return tf.reduce_mean(square_error)
+
+
 #label=1 or label=-1 then do regression
 def bbox_ohem(bbox_pred,bbox_target,label):
     zeros_index = tf.zeros_like(label, dtype=tf.float32)
@@ -110,6 +121,8 @@ def cal_accuracy(cls_prob,label):
     pred_picked = tf.gather(pred,picked)
     accuracy_op = tf.reduce_mean(tf.cast(tf.equal(label_picked,pred_picked),tf.float32))
     return accuracy_op
+
+
 #construct Pnet
 #label:batch
 def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True):
@@ -164,6 +177,7 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
             bbox_pred_test = tf.squeeze(bbox_pred,axis=0)
             landmark_pred_test = tf.squeeze(landmark_pred,axis=0)
             return cls_pro_test,bbox_pred_test,landmark_pred_test
+        
         
 def R_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True):
     with slim.arg_scope([slim.conv2d],
