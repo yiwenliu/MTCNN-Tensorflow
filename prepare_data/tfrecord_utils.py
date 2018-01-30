@@ -71,6 +71,7 @@ def _convert_to_example_simple(image_example, image_buffer):
     :param colorspace:
     :param channels:
     :param image_format:
+        
     :return:
     Example proto
     """
