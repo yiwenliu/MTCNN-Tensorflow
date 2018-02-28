@@ -19,7 +19,7 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
   * The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
   
   * prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt，
-  文件中每一行记录格式：[path to image] [cls_label] [bbox_label] 
+  Each line's format：[path to image] [cls_label] [bbox_label] 
   cls_label: 1 for positive, 0 for negative, -1 for part face.  
   bbox_label are the offset of x1, y1, x2, y2, calculated by (xgt(ygt) - x(y)) / width(height) 
   12/negative/0.jpg 0

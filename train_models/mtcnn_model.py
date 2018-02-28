@@ -25,7 +25,7 @@ def dense_to_one_hot(labels_dense,num_classes):
 #cls_prob:[batch, 2]
 #label:batch
 def cls_ohem(cls_prob, label):
-    #Creates a tensor of the same type and shape as label with all elements set to zero.
+    #@zeros: a tensor of the same type and shape as label with all elements set to zero.
     zeros = tf.zeros_like(label)
     #label=-1 --> label=0net_factory
     label_filter_invalid = tf.where(tf.less(label,0), zeros, label)
