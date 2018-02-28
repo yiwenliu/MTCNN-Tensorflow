@@ -18,13 +18,13 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 3. Run `prepare_data/gen_12net_data.py` to generate training data(Face Detection Part) for **PNet**.
   * The result is "12880 images done, pos: 196960 part: 540330 neg: 809650"
   
-  * prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt，
-  Each line's format：[path to image] [cls_label] [bbox_label] 
-  cls_label: 1 for positive, 0 for negative, -1 for part face.  
-  bbox_label are the offset of x1, y1, x2, y2, calculated by (xgt(ygt) - x(y)) / width(height) 
-  12/negative/0.jpg 0
-  12/part/0.jpg -1 0.05 0.15 -0.21 0.05
-  12/positive/0.jpg 1 0.12 0.04 0.04 0.18
+  * prepare_data/12下生成三个文件neg_12.txt，part_12.txt和pos_12.txt   
+  Each line's format：[path to image] [cls_label] [bbox_label]   
+  cls_label: 1 for positive, 0 for negative, -1 for part face.   
+  bbox_label are the offset of x1, y1, x2, y2, calculated by (xgt(ygt) - x(y)) / width(height)   
+  12/negative/0.jpg 0   
+  12/part/0.jpg -1 0.05 0.15 -0.21 0.05    
+  12/positive/0.jpg 1 0.12 0.04 0.04 0.18    
   
   * prepare_data/12下生成三个子目录：negative, part, positive，分别存储尺寸为12*12的“非脸部，部分脸部，脸部”训练图片。
 4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
