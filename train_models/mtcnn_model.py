@@ -29,10 +29,12 @@ def cls_ohem(cls_prob, label):
     zeros = tf.zeros_like(label)
     #label=-1 --> label=0net_factory
     label_filter_invalid = tf.where(tf.less(label,0), zeros, label)
+    #num_cls_prob is a 0-D tensor withe the value batch*2
     num_cls_prob = tf.size(cls_prob)
     cls_prob_reshape = tf.reshape(cls_prob,[num_cls_prob,-1])
     label_int = tf.cast(label_filter_invalid,tf.int32)
     num_row = tf.to_int32(cls_prob.get_shape()[0])
+    #row:[0,1,2,...num_row-1]*2
     row = tf.range(num_row)*2
     indices_ = row + label_int
     label_prob = tf.squeeze(tf.gather(cls_prob_reshape, indices_))
@@ -157,17 +159,20 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
         #cls_prob_original = conv4_1 
         #bbox_pred_original = bbox_pred
         if training:
+            #分类loss值
             #shape of cls_prob is batch*2
             cls_prob = tf.squeeze(conv4_1,[1,2],name='cls_prob')
             cls_loss = cls_ohem(cls_prob,label)
+            #回归框loss值
             #shape of bbox_pred is batch*4
             bbox_pred = tf.squeeze(bbox_pred,[1,2],name='bbox_pred')
             bbox_loss = bbox_ohem(bbox_pred,bbox_target,label)
+            #面部轮廓loss值
             #shape of landmark_pred is batch*10
             landmark_pred = tf.squeeze(landmark_pred,[1,2],name="landmark_pred")
             landmark_loss = landmark_ohem(landmark_pred,landmark_target,label)
-
             accuracy = cal_accuracy(cls_prob,label)
+            #L2loss值
             L2_loss = tf.add_n(slim.losses.get_regularization_losses())
             return cls_loss,bbox_loss,landmark_loss,L2_loss,accuracy 
         #test
