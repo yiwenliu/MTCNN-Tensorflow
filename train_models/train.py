@@ -82,9 +82,9 @@ def train(net_factory, prefix, end_epoch, base_dir,
           display=200, base_lr=0.01):
     """
     train PNet/RNet/ONet
-    :param net_factory:
+    :param net_factory:PNet/RNet/ONet
     :param prefix: model path,data/MTCNN_model/PNet_landmark/PNet
-    :param end_epoch:
+    :param end_epoch: 30
     :param base_dir:tfrecord path
     :param display:
     :param base_lr:

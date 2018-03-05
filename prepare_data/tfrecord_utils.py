@@ -179,7 +179,9 @@ def _process_image(filename, coder):
     return image_data, height, width
 
 def _process_image_withoutcoder(filename):
+    #@image: type is NumPy arrays
     image = cv2.imread(filename)
+    #@image_data: Python bytes
     image_data = image.tostring()
     assert len(image.shape) == 3
     height = image.shape[0]

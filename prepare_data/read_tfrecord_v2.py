@@ -7,12 +7,15 @@ import os
 #just for RNet and ONet, since I change the method of making tfrecord
 #as for PNet
 def read_single_tfrecord(tfrecord_file, batch_size, net):
-    # generate a input queue
+    # generate a input queue to hold filenames
     # each epoch shuffle
     filename_queue = tf.train.string_input_producer([tfrecord_file],shuffle=True)
-    # read tfrecord
+    # Define a reader to read tfrecord
     reader = tf.TFRecordReader()
+    #Return a tuple of Tensors (key, value) of the next record
     _, serialized_example = reader.read(filename_queue)
+    #Define a decoder
+    #@return: A dict mapping feature keys to Tensor and SparseTensor values.
     image_features = tf.parse_single_example(
         serialized_example,
         features={
@@ -28,11 +31,15 @@ def read_single_tfrecord(tfrecord_file, batch_size, net):
         image_size = 24
     else:
         image_size = 48
+    #Convert the data from string back to the numbers
     image = tf.decode_raw(image_features['image/encoded'], tf.uint8) #a tensor as a vector of numbers interpretted from the bytes of a string 
+    #Reshape data into its original shape
     image = tf.reshape(image, [image_size, image_size, 3])
     image = (tf.cast(image, tf.float32)-127.5) / 128 #why?
     
     # image = tf.image.per_image_standardization(image)
+    #Convert the data from string back to the numbers
+    #for labels which have not been converted to string, we just need to cast them using tf.cast(x, dtype)
     label = tf.cast(image_features['image/label'], tf.float32)
     roi = tf.cast(image_features['image/roi'],tf.float32)
     landmark = tf.cast(image_features['image/landmark'],tf.float32)

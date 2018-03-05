@@ -18,7 +18,7 @@ def _add_to_tfrecord(filename, image_example, tfrecord_writer):
       tfrecord_writer: The TFRecord writer to use for writing.
     """
     print('---', filename)
-    #imaga_data:array to string
+    #image_data:array to string
     #height:original image's height
     #width:original image's width
     image_data, height, width = _process_image_withoutcoder(filename)
@@ -87,7 +87,8 @@ def get_dataset(dir, net='PNet'):
     dataset = []#list of data_example
     for line in imagelist.readlines():
         info = line.strip().split(' ')
-        data_example = dict() #{'filename':xx, 'label':xx, 'bbox':{}}
+        #data_example: {'filename':xx, 'label':xx, 'bbox':{}}
+        data_example = dict() 
         bbox = dict()
         data_example['filename'] = info[0]
         data_example['label'] = int(info[1])

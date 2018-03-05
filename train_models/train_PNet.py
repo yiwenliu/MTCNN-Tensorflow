@@ -25,7 +25,7 @@ if __name__ == '__main__':
     model_path = '../data/%s_model/PNet_landmark/PNet' % model_name
             
     prefix = model_path
-    #一个epoch的意思就是"迭代次数*batch的数目 == 训练数据的个数"，就是一个epoch。
+    #一个epoch的意思就是"迭代次数*batch_size == 训练数据的个数"，就是一个epoch。
     end_epoch = 30
     display = 100
     lr = 0.01

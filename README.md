@@ -28,10 +28,11 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
   
   * prepare_data/12下生成三个子目录：negative, part, positive，分别存储尺寸为12*12的“非脸部，部分脸部，脸部”训练图片。
 4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
-* 在prepare_data/12下生成了子目录train_PNet_landmark_aug，其中存放的都是12x12的positive face
-* 在prepare_data/12下生成landmark_12_aug.txt，每行记录的格式如下：
+  * 在prepare_data/12下生成了子目录train_PNet_landmark_aug，其中存放的都是12x12的positive face
+  * 在prepare_data/12下生成landmark_12_aug.txt，每行记录的格式:[path to image] [cls_label] [landmark_label]     
+  landmark_label: 五个landmark点相对于bbx top-left的归一化偏移值      
   12/train_PNet_landmark_aug\0.jpg -2 0.288961038961 0.204545454545 0.814935064935 0.262987012987 0.535714285714 0.659090909091 0.275974025974 0.853896103896 0.724025974026 0.905844155844
-                                      五个landmark点相对于bbx top-left的归一化偏移值
+                                      
 5. Run `gen_imglist_pnet.py` to merge two parts of training data.
 * 新建目录prepare_data\imglists\PNet
 * 在上述目录下，新建train_PNet_landmark.txt，把landmark_12_aug.txt, neg_12.txt，part_12.txt和pos_12.txt中的每一行打乱了顺序，再写入新建annotation文件中
@@ -41,7 +42,7 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 * 执行时间很长，但是报错——"段错误 (核心已转储)" on my ubuntu with GPU, and the file size is about 859,920,160 bytes.
 * 在prepare_data\imglists\PNet下新建train_PNet_landmark.tfrecord_shuffle
 7. Run train_models/train_PNet.py to train **PNet**. 
-* 定义PNet：mtcnn_model.py/def P_Net()，包括神经网络结构，cost function 
+  * 定义PNet：mtcnn_model.py/def P_Net()，包括神经网络结构，cost function    
    Then run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
 8. Run `gen_landmark_aug_24.py` to generate training data(Face Landmark Detection Part) for **RNet**.
 9. Run `gen_imglist_rnet.py` to merge two parts of training data.

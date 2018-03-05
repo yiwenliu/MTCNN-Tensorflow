@@ -21,24 +21,33 @@ def dense_to_one_hot(labels_dense,num_classes):
     labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
     return labels_one_hot
 
-
-#cls_prob:[batch, 2]
-#label:batch
+#cls_ohem的作用是筛选all samples(pos and neg samples) in a batch中前70%的loss进行反向传播
+#cls_prob:[batch, 2]，forward propagation计算得到的face/nonface分类概率
+#label:batch, shape=[config.BATCH_SIZE], 1 for positive, 0 for negative, -1 for part face, -2 for landmark
 def cls_ohem(cls_prob, label):
-    #@zeros: a tensor of the same type and shape as label with all elements set to zero.
+    #@zeros: a tensor of the same type and shape as 'label' with all elements set to zero.
     zeros = tf.zeros_like(label)
-    #label=-1 --> label=0net_factory
+    #label=-1 --> label=0，把label中所有小于0的element置0(包括part face和landmark face)
     label_filter_invalid = tf.where(tf.less(label,0), zeros, label)
-    #num_cls_prob is a 0-D tensor withe the value batch*2
+    #num_cls_prob is a 0-D tensor with the value 'batch*2'
     num_cls_prob = tf.size(cls_prob)
+    #shape(cls_prob_reshape) = [batch*2, 1], e.g.[[0.5],[0.5], [0.7],[0.3], ...]
     cls_prob_reshape = tf.reshape(cls_prob,[num_cls_prob,-1])
+    #@label_int: a 1-D tensor with shape [batch_size]
     label_int = tf.cast(label_filter_invalid,tf.int32)
+    #num_row is a 0-D tensor with the value 'batch_size'，就是mini-batch中samples的数量
     num_row = tf.to_int32(cls_prob.get_shape()[0])
-    #row:[0,1,2,...num_row-1]*2
+    #@row:[0,2,4,6...(batch-1)*2]
     row = tf.range(num_row)*2
+    #@indices_: 对于每个sample输出的两个前向概率(face/nonface),只需要选一个来计算此sample的loss,指出ground truth label为1的那个
+    #for negative face, label=0, [1,0]
+    #for positive face, label=1, [0,1]
     indices_ = row + label_int
+    #@label_prob: a 1-D tensor with the shape [batch_size]
     label_prob = tf.squeeze(tf.gather(cls_prob_reshape, indices_))
+    #@loss: a 1-D tensor with the shape [batch_size] whose element is the loss of each sample in the batch
     loss = -tf.log(label_prob+1e-10)
+    '''Delete on 20180301
     zeros = tf.zeros_like(label_prob, dtype=tf.float32)
     ones = tf.ones_like(label_prob,dtype=tf.float32)
     valid_inds = tf.where(label < zeros,zeros,ones)
@@ -46,6 +55,8 @@ def cls_ohem(cls_prob, label):
     keep_num = tf.cast(num_valid*num_keep_radio,dtype=tf.int32)
     #set 0 to invalid sample
     loss = loss * valid_inds
+    '''
+    keep_num = tf.cast(num_row*num_keep_radio,dtype=tf.int32)
     loss,_ = tf.nn.top_k(loss, k=keep_num)
     return tf.reduce_mean(loss)
 
@@ -81,13 +92,16 @@ def bbox_ohem_orginal(bbox_pred,bbox_target,label):
     return tf.reduce_mean(square_error)
 
 
-#label=1 or label=-1 then do regression
+#label=1(pos) or label=-1(neg) then do regression
+#bbox_pred，shape is [batch,4]
 def bbox_ohem(bbox_pred,bbox_target,label):
     zeros_index = tf.zeros_like(label, dtype=tf.float32)
     ones_index = tf.ones_like(label,dtype=tf.float32)
+    #@valid_inds:a tensor with element 0 or 1, 标注batch中哪些samples参与loss计算
     valid_inds = tf.where(tf.equal(tf.abs(label), 1),ones_index,zeros_index)
     #(batch,)
     square_error = tf.square(bbox_pred-bbox_target)
+    #@shape(square_error)=[batch_size]
     square_error = tf.reduce_sum(square_error,axis=1)
     #keep_num scalar
     num_valid = tf.reduce_sum(valid_inds)
@@ -95,6 +109,7 @@ def bbox_ohem(bbox_pred,bbox_target,label):
     keep_num = tf.cast(num_valid, dtype=tf.int32)
     #keep valid index square_error
     square_error = square_error*valid_inds
+    #在论文中，只对face/nonface classification task进行了OHSM?20180301
     _, k_index = tf.nn.top_k(square_error, k=keep_num)
     square_error = tf.gather(square_error, k_index)
     return tf.reduce_mean(square_error)
@@ -110,11 +125,14 @@ def landmark_ohem(landmark_pred,landmark_target,label):
     #keep_num = tf.cast(num_valid*num_keep_radio,dtype=tf.int32)
     keep_num = tf.cast(num_valid, dtype=tf.int32)
     square_error = square_error*valid_inds
+    #在论文中，只对face/nonface classification task进行了OHSM?20180301
     _, k_index = tf.nn.top_k(square_error, k=keep_num)
     square_error = tf.gather(square_error, k_index)
     return tf.reduce_mean(square_error)
-    
+
+#@return:一次mini-batch forward propagation中，accuracy=(true_pos+true_neg)/batch_size    
 def cal_accuracy(cls_prob,label):
+    #@pred: 只需要这一步，a tensor's shape changed from [batch,2] to [batch,1]，且element是0 or 1，这样，就能和label进行比较了
     pred = tf.argmax(cls_prob,axis=1)
     label_int = tf.cast(label,tf.int64)
     cond = tf.where(tf.greater_equal(label_int,0))
@@ -126,7 +144,7 @@ def cal_accuracy(cls_prob,label):
 
 
 #construct Pnet
-#label:batch
+#label:batch, shape=[config.BATCH_SIZE]
 def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True):
     #define common param
     with slim.arg_scope([slim.conv2d],
@@ -160,7 +178,7 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
         #bbox_pred_original = bbox_pred
         if training:
             #分类loss值
-            #shape of cls_prob is batch*2
+            #shape(cls_prob)=batch*2
             cls_prob = tf.squeeze(conv4_1,[1,2],name='cls_prob')
             cls_loss = cls_ohem(cls_prob,label)
             #回归框loss值
@@ -173,6 +191,7 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
             landmark_loss = landmark_ohem(landmark_pred,landmark_target,label)
             accuracy = cal_accuracy(cls_prob,label)
             #L2loss值
+            #slim.losses.get_regularization_losses():return a list of tensor with the meaning of 'regularization losses'
             L2_loss = tf.add_n(slim.losses.get_regularization_losses())
             return cls_loss,bbox_loss,landmark_loss,L2_loss,accuracy 
         #test
