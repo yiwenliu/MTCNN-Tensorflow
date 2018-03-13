@@ -15,7 +15,7 @@ import cv2
 def train_model(base_lr, loss, data_num):
     """
     train model
-    :param base_lr: base learning rate
+    :param base_lr: base learning rate,0.01
     :param loss: loss
     :param data_num:
     :return:
@@ -23,13 +23,15 @@ def train_model(base_lr, loss, data_num):
     """
     lr_factor = 0.1
     global_step = tf.Variable(0, trainable=False)
-    #LR_EPOCH [8,14]
-    #boundaried [num_batch,num_batch]
+    #LR_EPOCH [6,14,20]
+    #boundaried [6*iteratio_num, 14*iteratio_num, 20*iteratio_num]
     boundaries = [int(epoch * data_num / config.BATCH_SIZE) for epoch in config.LR_EPOCH]
     #lr_values[0.01,0.001,0.0001,0.00001]
     lr_values = [base_lr * (lr_factor ** x) for x in range(0, len(config.LR_EPOCH) + 1)]
     #control learning rate
+    #@lr_op: A 0-D scalar Tensor
     lr_op = tf.train.piecewise_constant(global_step, boundaries, lr_values)
+    #momentum term is 0.9
     optimizer = tf.train.MomentumOptimizer(lr_op, 0.9)
     train_op = optimizer.minimize(loss, global_step)
 
@@ -162,6 +164,7 @@ def train(net_factory, prefix, end_epoch, base_dir,
     logs_dir = "../logs/%s" %(net)
     if os.path.exists(logs_dir) == False:
         os.mkdir(logs_dir)
+    # Create a summary writer, add the 'graph' to the event file.
     writer = tf.summary.FileWriter(logs_dir,sess.graph)
     #begin 
     coord = tf.train.Coordinator()

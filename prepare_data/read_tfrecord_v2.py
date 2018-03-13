@@ -10,9 +10,9 @@ def read_single_tfrecord(tfrecord_file, batch_size, net):
     # generate a input queue to hold filenames
     # each epoch shuffle
     filename_queue = tf.train.string_input_producer([tfrecord_file],shuffle=True)
-    # Define a reader to read tfrecord
+    # Define a reader to read tfrecord from a queue
     reader = tf.TFRecordReader()
-    #Return a tuple of Tensors (key, value) of the next record
+    #Return: A tuple of Tensors (key, value). key: A string scalar Tensor. value: A string scalar Tensor.
     _, serialized_example = reader.read(filename_queue)
     #Define a decoder
     #@return: A dict mapping feature keys to Tensor and SparseTensor values.
