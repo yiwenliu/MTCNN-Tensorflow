@@ -43,6 +43,9 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
 * 在prepare_data\imglists\PNet下新建train_PNet_landmark.tfrecord_shuffle
 7. Run train_models/train_PNet.py to train **PNet**. 
   * 定义PNet：mtcnn_model.py/def P_Net()，包括神经网络结构，cost function    
+  * 定义cost function
+  * 定义input pipeline
+  * 定义summary
    Then run `gen_hard_example` to generate training data(Face Detection Part) for **RNet**.
 8. Run `gen_landmark_aug_24.py` to generate training data(Face Landmark Detection Part) for **RNet**.
 9. Run `gen_imglist_rnet.py` to merge two parts of training data.
