@@ -2,7 +2,8 @@
 import tensorflow as tf
 from tensorflow.contrib import slim
 import numpy as np
-num_keep_radio = 0.7
+#num_keep_radio = 0.7
+num_keep_radio = tf.constant(0.7) #20180324
 
 
 #define prelu
