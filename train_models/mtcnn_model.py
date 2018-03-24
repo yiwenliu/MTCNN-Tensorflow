@@ -57,7 +57,8 @@ def cls_ohem(cls_prob, label):
     #set 0 to invalid sample
     loss = loss * valid_inds
     '''
-    keep_num = tf.cast(num_row*num_keep_radio,dtype=tf.int32)
+    #keep_num = tf.cast(num_row*num_keep_radio,dtype=tf.int32)
+    keep_num = tf.cast(tf.to_float(num_row)*num_keep_radio,dtype=tf.int32)
     loss,_ = tf.nn.top_k(loss, k=keep_num)
     return tf.reduce_mean(loss)
 
