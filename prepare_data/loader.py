@@ -5,16 +5,22 @@ import cv2
 sys.path.append("../")
 from train_models.MTCNN_config import config
 
+"""An iterator object, 迭代器，用于读取图片
+"""
 
 class TestLoader:
     #imdb image_path(list)
     def __init__(self, imdb, batch_size=1, shuffle=False):
+        """
+        Args:
+            imdb: image_path(list)
+        """
         self.imdb = imdb
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.size = len(imdb)#num of data
         #self.index = np.arange(self.size)
-        
+        #游标（cursor）
         self.cur = 0
         self.data = None
         self.label = None

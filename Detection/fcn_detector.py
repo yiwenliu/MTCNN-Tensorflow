@@ -6,9 +6,15 @@ from train_models.MTCNN_config import config
 
 
 class FcnDetector(object):
-    #net_factory: which net
-    #model_path: where the params'file is
+    """定义pnet人脸检测器
+    """
+    
     def __init__(self, net_factory, model_path):
+        """
+        Args:
+            net_factory: which net
+            model_path: where the params'file is
+        """
         #create a graph
         graph = tf.Graph()
         with graph.as_default():
@@ -24,17 +30,20 @@ class FcnDetector(object):
             #contains landmark
             self.cls_prob, self.bbox_pred, _ = net_factory(image_reshape, training=False)
             
-            #allow 
+            #allow_soft_placement=True：如果你指定的设备不存在，允许TF自动分配设备
+            #allow_growth=True：刚一开始分配少量的GPU容量，然后按需慢慢的增加，由于不会释放内存，所以会导致碎片
             self.sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, gpu_options=tf.GPUOptions(allow_growth=True)))
             saver = tf.train.Saver()
             #check whether the dictionary is valid
-            model_dict = '/'.join(model_path.split('/')[:-1])
+            model_dict = '/'.join(model_path.split('/')[:-1])# The directory of checkpoints.
+            #Returns CheckpointState proto from the "checkpoint" file.
             ckpt = tf.train.get_checkpoint_state(model_dict)
-            print model_path
+            print (model_path)
             readstate = ckpt and ckpt.model_checkpoint_path
             assert  readstate, "the params dictionary is not valid"
-            print "restore models' param"
+            print ("restore models' param")
             saver.restore(self.sess, model_path)
+            
     def predict(self, databatch):
         height, width, _ = databatch.shape
         # print(height, width)

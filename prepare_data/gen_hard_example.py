@@ -15,12 +15,16 @@ from Detection.fcn_detector import FcnDetector
 from Detection.MtcnnDetector import MtcnnDetector
 from utils import *
 from data_utils import *
-#net : 24(RNet)/48(ONet)
-#data: dict()
-def save_hard_example(net, data,save_path):
-    # load ground truth from annotation file
-    # format of each line: image/path [x1,y1,x2,y2] for each gt_box in this image
 
+def save_hard_example(net, data,save_path):
+    """load ground truth from annotation file 
+    
+    Format of each line: image/path [x1,y1,x2,y2] for each gt_box in this image
+    
+    Args:
+        net : 24(RNet)/48(ONet)
+        data: dict()
+    """
     im_idx_list = data['images']
     # print(images[0])
     gt_boxes_list = data['bboxes']
@@ -41,8 +45,8 @@ def save_hard_example(net, data,save_path):
     #read detect result
     det_boxes = pickle.load(open(os.path.join(save_path, 'detections.pkl'), 'rb'))
     # print(len(det_boxes), num_of_images)
-    print len(det_boxes)
-    print num_of_images
+    print (len(det_boxes))
+    print (num_of_images)
     assert len(det_boxes) == num_of_images, "incorrect detections or ground truths"
 
     # index of neg, pos and part face, used as their image names
@@ -126,11 +130,19 @@ def t_net(prefix, epoch,
              batch_size, test_mode="PNet",
              thresh=[0.6, 0.6, 0.7], min_face_size=25,
              stride=2, slide_window=False, shuffle=False, vis=False):
+    """
+    Args:
+        prefix:['../data/MTCNN_model/PNet_landmark/PNet', '../data/MTCNN_model/RNet_landmark/RNet', '../data/MTCNN_model/ONet/ONet'],
+        epoch:[18, 14, 22]
+        batch_size:[2048, 256, 16]
+        test_mode: RNet
+        slide_window: True
+    """
     detectors = [None, None, None]
     print("Test model: ", test_mode)
-    #PNet-echo
+    #[.../PNet-18, .../RNet-14, .../ONet-22]
     model_path = ['%s-%s' % (x, y) for x, y in zip(prefix, epoch)]
-    print(model_path[0])
+    print(model_path[0]) #.../PNet-18
     # load pnet model
     if slide_window:
         PNet = Detector(P_Net, 12, batch_size[0], model_path[0])
@@ -153,7 +165,7 @@ def t_net(prefix, epoch,
     basedir = '.'    
     #anno_file
     filename = './wider_face_train_bbx_gt.txt'
-    #read annatation(type:dict)
+    #read annatation(type:dict), {'images':[], 'bboxes':[]}
     data = read_annotation(basedir,filename)
     mtcnn_detector = MtcnnDetector(detectors=detectors, min_face_size=min_face_size,
                                    stride=stride, threshold=thresh, slide_window=slide_window)
@@ -161,6 +173,8 @@ def t_net(prefix, epoch,
     # 注意是在“test”模式下
     # imdb = IMDB("wider", image_set, root_path, dataset_path, 'test')
     # gt_imdb = imdb.gt_imdb()
+    
+    #@test_data: a TestLoader object to read images
     test_data = TestLoader(data['images'])
     #list
     detections,_ = mtcnn_detector.detect_face(test_data)
@@ -170,9 +184,9 @@ def t_net(prefix, epoch,
         save_net = "RNet"
     elif test_mode == "RNet":
         save_net = "ONet"
-    #save detect result
+    #save detect result, 24/RNet
     save_path = os.path.join(data_dir, save_net)
-    print save_path
+    print (save_path)
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
@@ -184,8 +198,13 @@ def t_net(prefix, epoch,
 
 
 def parse_args():
+    """
+    """
     parser = argparse.ArgumentParser(description='Test mtcnn',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    #dest - The name of the attribute to be added to the object returned by parse_args()
+    #nargs - The number of command-line arguments that should be consumed.  + 号表示 1 或多个参数。
+    #default - 不指定参数时的默认值。
     parser.add_argument('--test_mode', dest='test_mode', help='test net type, can be pnet, rnet or onet',
                         default='RNet', type=str)
     parser.add_argument('--prefix', dest='prefix', help='prefix of model name', nargs="+",
@@ -212,27 +231,37 @@ def parse_args():
 
 if __name__ == '__main__':
 
-    net = 'ONet'
+    #net = 'ONet'
+    args = parse_args()
+    
+    #产生RNet的训练样本时，test_model应设为PNet
+    if args.test_mode == "PNet":
+        net = "RNet"
+        image_size = 24
+    else:#当产生ONet的训练样本时，test_model应设为RNet
+        net = "ONet"
+        image_size = 48
+    '''deleted on 20180327
     if net == "RNet":
         image_size = 24
     if net == "ONet":
         image_size = 48
-
+    '''
     base_dir = '../prepare_data/WIDER_train'
     data_dir = '%s' % str(image_size)
     
-    neg_dir = get_path(data_dir, 'negative')
-    pos_dir = get_path(data_dir, 'positive')
-    part_dir = get_path(data_dir, 'part')
+    neg_dir = get_path(data_dir, 'negative') #24(48)/negative
+    pos_dir = get_path(data_dir, 'positive') #24(48)/positive
+    part_dir = get_path(data_dir, 'part')    #24(48)/part
     #create dictionary shuffle   
     for dir_path in [neg_dir, pos_dir, part_dir]:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
-    args = parse_args()
+    #args = parse_args() #move to line233 on 20180327
 
-    print 'Called with argument:'
-    print args 
+    print ('Called with argument:')
+    print (args)
     t_net(args.prefix,#model param's file
           args.epoch, #final epoches
           args.batch_size, #test batch_size 

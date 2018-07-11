@@ -4,6 +4,9 @@ import numpy as np
 
 
 class Detector(object):
+    """定义rnet和onet人脸检测器
+    
+    """
     #net_factory:rnet or onet
     #datasize:24 or 48
     def __init__(self, net_factory, data_size, batch_size, model_path):
@@ -18,14 +21,14 @@ class Detector(object):
             #check whether the dictionary is valid
             model_dict = '/'.join(model_path.split('/')[:-1])
             ckpt = tf.train.get_checkpoint_state(model_dict)
-            print model_path
+            print (model_path)
             readstate = ckpt and ckpt.model_checkpoint_path
             assert  readstate, "the params dictionary is not valid"
-            print "restore models' param"
+            print ("restore models' param")
             saver.restore(self.sess, model_path)                        
-
         self.data_size = data_size
         self.batch_size = batch_size
+        
     #rnet and onet minibatch(test)
     def predict(self, databatch):
         # access data

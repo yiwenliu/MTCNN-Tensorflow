@@ -204,6 +204,7 @@ def train(net_factory, prefix, end_epoch, base_dir,
             if i * config.BATCH_SIZE > num*2:
                 epoch = epoch + 1
                 i = 0
+                #文件名是PNet-globale_step.xxx
                 saver.save(sess, prefix, global_step=epoch*2)
             writer.add_summary(summary,global_step=step)
     except tf.errors.OutOfRangeError:

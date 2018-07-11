@@ -51,11 +51,10 @@ def read_annotation(base_dir, label_path):
             one_image_bboxes.append([xmin, ymin, xmax, ymax])
             # f.write(text + '\n')
         bboxes.append(one_image_bboxes)
-
-
     data['images'] = images#all image pathes
     data['bboxes'] = bboxes#all image bboxes
     # f.close()
+    labelfile.close() #added on 20180327
     return data
 
 def read_and_write_annotation(base_dir, dir):

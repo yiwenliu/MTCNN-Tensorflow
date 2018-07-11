@@ -8,8 +8,8 @@ from nms import py_nms
 
 
 class MtcnnDetector(object):
-
-
+    """将三个检测器汇集在一起
+    """
     def __init__(self,
                  detectors,
                  min_face_size=25,
@@ -384,7 +384,13 @@ class MtcnnDetector(object):
                                                                                                                 t3))
     
         return boxes_c,landmark
+    
+    
     def detect_face(self, test_data):
+        """
+        Args:
+            test_data: a TestLoader object 
+        """
         all_boxes = []#save each image's bboxes
         landmarks = []
         batch_idx = 0
