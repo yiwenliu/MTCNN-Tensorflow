@@ -27,7 +27,7 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment using
   12/positive/0.jpg 1 0.12 0.04 0.04 0.18    
   
   * prepare_data/12下生成三个子目录：negative, part, positive，分别存储尺寸为12*12的“非脸部，部分脸部，脸部”训练图片。
-4. Run `gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
+4. Run `prepare_data/gen_landmark_aug_12.py` to generate training data(Face Landmark Detection Part) for **PNet**.
   * 在prepare_data/12下生成了子目录train_PNet_landmark_aug，其中存放的都是12x12的positive face
   * 在prepare_data/12下生成landmark_12_aug.txt，每行记录的格式:[path to image] [cls_label] [landmark_label]     
   landmark_label: 五个landmark点相对于bbx top-left的归一化偏移值      
