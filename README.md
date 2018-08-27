@@ -42,11 +42,11 @@ This work is used for reproduce MTCNN,a Joint Face Detection and Alignment（对
 * 执行时间很长，但是报错——"段错误 (核心已转储)" on my ubuntu with GPU, and the file size is about 859,920,160 bytes.
 * 在prepare_data\imglists\PNet下新建train_PNet_landmark.tfrecord_shuffle
 7. (1)Run train_models/train_PNet.py to train **PNet**. 
-       * 定义PNet：mtcnn_model.py/def P_Net()，包括神经网络结构，cost function    
-       * 定义cost function, input pipeline, summary        
-       * 模型数据保存在"/data/MTCNN_model/PNet_landmark"    
+           * 定义PNet：mtcnn_model.py/def P_Net()，包括神经网络结构，cost function    
+           * 定义cost function, input pipeline, summary        
+           * 模型数据保存在"/data/MTCNN_model/PNet_landmark"    
   在ubuntu GPU上执行这个.py时，出现了如下的问题：    
-       * 未安装easydict, $pip install easydict或者$conda install -c auto easydict    
+           * 未安装easydict, $pip install easydict或者$conda install -c auto easydict    
   (2)Then run `gen_hard_example.py --test_mode PNet` to generate training data(Face Detection Part) for **RNet**. 和本文档中第3步生成的内容相同。    
 8. Run `gen_landmark_aug_24.py` to generate training data(Face Landmark Detection Part) for **RNet**.
 9. Run `gen_imglist_rnet.py` to merge two parts of training data.
