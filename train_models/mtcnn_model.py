@@ -156,6 +156,9 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
                         weights_regularizer=slim.l2_regularizer(0.0005), 
                         padding='valid'):
         print(inputs.get_shape())
+        #num_outputs:10
+        #kernel_size:3
+        #stride: for each dimension of input not for each dimension of filter kernel
         net = slim.conv2d(inputs, 10, 3, stride=1,scope='conv1')
         print(net.get_shape())
         #net = slim.max_pool2d(net, kernel_size=[2,2], stride=2, scope='pool1', padding='SAME')
@@ -180,6 +183,7 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
         #bbox_pred_original = bbox_pred
         if training:
             #分类loss值
+            #tf.squeeze():Removes dimensions of size 1 from the shape of a tensor
             #shape(cls_prob)=batch*2
             cls_prob = tf.squeeze(conv4_1,[1,2],name='cls_prob')
             cls_loss = cls_ohem(cls_prob,label)
